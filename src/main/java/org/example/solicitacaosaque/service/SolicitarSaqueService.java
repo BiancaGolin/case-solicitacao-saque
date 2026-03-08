@@ -40,66 +40,85 @@ public class SolicitarSaqueService {
     private final IdempotencyRepository idempotencyRepository;
 
     private static final Logger log = LoggerFactory.getLogger(SolicitarSaqueService.class);
+    private final SaqueMetricas saqueMetricas;
 
 
     public SaqueResponse solicitarSaque(String idempotencia, SolicitarSaqueRequest request) {
 
-        try {
-            log.info(
-                    "event=solicitacao_saque_recebida conta_id={} valor={} canal={} idempotencia={}",
-                    request.getIdConta(),
-                    request.getValor(),
-                    request.getCanal(),
-                    idempotencia
-            );
+        return saqueMetricas.getTimer().record(() -> {
 
-            //Verifica idempotencia
-            Optional<Idempotency> registro =
-                    idempotencyRepository.findByIdempotencyKey(idempotencia);
+            try {
+                log.info(
+                        "event=solicitacao_saque_recebida conta_id={} valor={} canal={} idempotencia={}",
+                        request.getIdConta(),
+                        request.getValor(),
+                        request.getCanal(),
+                        idempotencia
+                );
 
-            if (registro.isPresent()) {
-                log.info("event=idempotency_replay key={}", idempotencia);
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Requisição duplicada");
+                //Verifica idempotencia
+                Optional<Idempotency> registro =
+                        idempotencyRepository.findByIdempotencyKey(idempotencia);
+
+                if (registro.isPresent()) {
+                    log.info("event=idempotency_replay key={}", idempotencia);
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "Requisição duplicada");
+                }
+
+                //Regras de negocio
+                Conta conta = validarContaAtiva(request.getIdConta());
+                validarSaldoDisponivel(conta, request.getValor());
+                validarLimiteSaque(conta, request.getValor());
+                validarLimiteDiario(conta, request.getValor());
+                validarLimiteCanal(Canal.valueOf(request.getCanal().toUpperCase()), request.getValor());
+
+                //Criar e persistir o saque
+                Saque novoSaque = criarESalvarSaque(conta, request.getValor());
+
+                //Gerar resposta
+                SaqueResponse response = montarSaqueResponse(conta, novoSaque, request.getCanal());
+
+                //Salvar idempotencia
+                Idempotency record = new Idempotency();
+                record.setIdempotencyKey(idempotencia);
+                record.setPayloadHash("hash");
+                record.setResponseJson("json");
+                record.setCreatedAt(OffsetDateTime.now());
+
+                idempotencyRepository.save(record);
+
+                saqueMetricas.incrementarAprovadas();
+                //Montar DTO de resposta
+                return response;
+
+            } catch (OptimisticLockingFailureException e) {
+                log.warn(
+                        "event=concorrencia_detectada conta_id={} valor={}",
+                        request.getIdConta(),
+                        request.getValor(),
+                        e
+                );
+
+                saqueMetricas.incrementarRejeitadas();
+
+                throw new ResponseStatusException(
+                        HttpStatus.CONFLICT,
+                        "Operação concorrente detectada. Tente novamente."
+                );
+            } catch (ResponseStatusException e) {
+                // Captura casos como "Requisição duplicada"
+                log.warn("event=erro_negocio conta_id={} valor={} status={} message={}",
+                        request.getIdConta(), request.getValor(), e.getStatusCode(), e.getReason());
+                saqueMetricas.incrementarRejeitadas();
+                throw e; // relança a exceção para o Spring tratar
+
+            } catch (Exception e) {
+                // Captura qualquer outro erro inesperado
+                log.error("event=erro_inesperado conta_id={} valor={}", request.getIdConta(), request.getValor(), e);
+                saqueMetricas.incrementarRejeitadas();
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Erro inesperado");
             }
-
-            //Regras de negocio
-            Conta conta = validarContaAtiva(request.getIdConta());
-            validarSaldoDisponivel(conta, request.getValor());
-            validarLimiteSaque(conta, request.getValor());
-            validarLimiteDiario(conta, request.getValor());
-            validarLimiteCanal(Canal.valueOf(request.getCanal().toUpperCase()), request.getValor());
-
-            //Criar e persistir o saque
-            Saque novoSaque = criarESalvarSaque(conta, request.getValor());
-
-            //Gerar resposta
-            SaqueResponse response = montarSaqueResponse(conta, novoSaque, request.getCanal());
-
-            //Salvar idempotencia
-            Idempotency record = new Idempotency();
-            record.setIdempotencyKey(idempotencia);
-            record.setPayloadHash("hash");
-            record.setResponseJson("json");
-            record.setCreatedAt(OffsetDateTime.now());
-
-            idempotencyRepository.save(record);
-
-            //Montar DTO de resposta
-            return response;
-
-        } catch (OptimisticLockingFailureException e) {
-            log.warn(
-                    "event=concorrencia_detectada conta_id={} valor={}",
-                    request.getIdConta(),
-                    request.getValor(),
-                    e
-            );
-
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "Operação concorrente detectada. Tente novamente."
-            );
-        }
+        });
     }
 
 

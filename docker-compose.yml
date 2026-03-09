@@ -1,0 +1,82 @@
+#services:
+#  mongo:
+#    image: mongo:7.0
+#    container_name: saque-mongo
+#    hostname: saque-mongo
+#    restart: always
+#    ports:
+#      - "27017:27017"
+#    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+#    volumes:
+#      - mongo-data:/data/db
+#      - ./mongo-init:/docker-entrypoint-initdb.d
+#    environment:
+#      MONGO_INITDB_DATABASE: saque-db
+#    healthcheck:
+#      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+#      interval: 10s
+#      timeout: 10s
+#      retries: 5
+#      start_period: 30s
+#
+#  app:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    container_name: saque-app
+#    restart: always
+#    ports:
+#      - "8080:8080"
+#    environment:
+#      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/saque-db?replicaSet=rs0
+#    depends_on:
+#      mongo:
+#        condition: service_healthy
+#    command: >
+#      sh -c "
+#        echo '=== DEBUG: Variáveis de ambiente ===' &&
+#        echo 'SPRING_DATA_MONGODB_URI='$SPRING_DATA_MONGODB_URI &&
+#        echo '====================================' &&
+#        java -jar app.jar
+#      "
+#
+#volumes:
+#  mongo-data:
+services:
+
+  mongo:
+    image: mongo:7.0
+    container_name: mongo
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    #  - ./mongo-init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: >
+        mongosh --quiet --eval "
+        try {
+          rs.status().ok
+        } catch (e) {
+          rs.initiate({_id:'rs0',members:[{_id:0,host:'mongo:27017'}]})
+        }
+        quit(0)
+        "
+      interval: 5s
+      timeout: 30s
+      retries: 30
+
+  app:
+    build: .
+    container_name: saque-app
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/saque-db?replicaSet=rs0
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+volumes:
+  mongo-data:

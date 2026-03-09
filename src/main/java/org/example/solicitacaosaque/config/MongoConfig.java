@@ -1,24 +1,21 @@
 package org.example.solicitacaosaque.config;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 import java.util.Arrays;
 
 @Configuration
-public class MongoConfig extends AbstractMongoClientConfiguration {
+@EnableMongoRepositories(basePackages = "org.example.solicitacaosaque.repository")
+public class MongoConfig {
 
-    @Override
-    protected String getDatabaseName() {
-        return "saque-db";
-    }
-
-    @Override
+    @Bean
     public MongoCustomConversions customConversions() {
-        return new MongoCustomConversions((Arrays.asList(
+        return new MongoCustomConversions(Arrays.asList(
                 new OffsetDateTimeReadConverter(),
                 new OffsetDateTimeWriteConverter()
-        )));
+        ));
     }
 }

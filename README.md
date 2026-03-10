@@ -40,8 +40,6 @@ Esse comando irá:
 
 **3.** subir a aplicação
 
-**4.** executar os testes automatizados definidos no docker-compose
-
 **Executando apenas os testes**
 
 Caso queira rodar somente os testes, é possível executar o serviço específico de testes:

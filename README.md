@@ -8,13 +8,12 @@ Para explorar ou editar o diagrama de sequência, acesse o arquivo no Google Dri
 
 ### Configurando e Rodando com Docker
 
-A aplicação pode ser executada facilmente usando o **Docker Compose**, que sobe tanto a aplicação quanto o banco de dados MongoDB.  
+A aplicação será executada usando **Docker Compose**. O `docker-compose.yml` já está configurado para:
 
-O `docker-compose.yml` já está configurado para:
-
-- Subir o container da aplicação Java
-- Subir o container do MongoDB
-- Inicializar o banco de dados com dados de teste
+- subir o container da aplicação Java
+- subir o container do MongoDB
+- inicializar o banco de dados com dados de teste
+- executar os testes automatizados da aplicação
 
 **Passo a passo**
 
@@ -33,6 +32,59 @@ cd case-solicitacao-saque
 ```console
 docker compose up --build
 ```
+Esse comando irá:
+
+**1.** buildar a aplicação
+
+**2.** subir o MongoDB
+
+**3.** subir a aplicação
+
+**4.** executar os testes automatizados definidos no docker-compose
+
+**Executando apenas os testes**
+
+Caso queira rodar somente os testes, é possível executar o serviço específico de testes:
+```console
+docker compose run --rm tests
+```
+> Esse comando executa apenas o container responsável pelos testes e o remove após a execução.
+---
+
+### Testando a API com Insomnia
+
+Uma collection do Insomnia foi disponibilizada para facilitar os testes da API.
+
+A collection pode ser acessada em:
+[Insomnia Collection](https://github.com/BiancaGolin/case-solicitacao-saque/blob/main/saque-collection.yaml)
+
+Ela contém:
+
+- requisições para os endpoints principais da API
+- endpoints de **métricas e observabilidade**
+- exemplos de **payloads para validação das regras de negócio**
+
+Esses exemplos permitem testar diferentes cenários da aplicação, como:
+
+- conta inativa
+- saldo insuficiente
+- limite diário de saque excedido
+- limite de saque por canal
+
+### Endpoints da API
+
+- `POST /solicitacoes-saque`
+- `GET /contas/{idConta}/solicitacoes-saque?dataInicio={yyyy-mm-dd}&dataFim={yyyy-mm-dd}`
+- `GET /solicitacoes-saque/{idSolicitacaoSaque}`
+
+### Métricas
+
+- `GET /actuator/metrics/saque.aprovadas`
+- `GET /actuator/metrics/saque.rejeitadas`
+- `GET /actuator/metrics/saque.tempo.resposta`
+
+Essas URLs utilizam o **Spring Boot Actuator**, permitindo integração com dashboards de monitoramento, como Grafana ou Prometheus, se desejado.
+
 ---
 
 ### Dados de teste
@@ -95,9 +147,7 @@ Para garantir atomicidade foram utilizados:
 @Transactional
 ```
 
-Isso garante que: ```registrar saque + atualizar saldo```
-
-sejam tratados como uma única unidade lógica de trabalho.
+Isso garante que: ```registrar saque + atualizar saldo``` sejam tratados como uma única unidade lógica de trabalho.
 
 Caso qualquer etapa falhe, todas as alterações são revertidas.
 
@@ -200,7 +250,6 @@ A classe `MongoConfig` centraliza as configurações relacionadas ao MongoDB.
 
 Entre as responsabilidades dessa configuração estão:
 
-- inicialização do **replica set** utilizado para suportar transações
 - customização do comportamento do cliente Mongo
 - preparação da aplicação para operações que exigem **consistência transacional**
 
@@ -228,29 +277,6 @@ Por esse motivo, foram implementados **conversores customizados** na configuraç
 - `Date → OffsetDateTime`
 
 Dessa forma, a aplicação pode trabalhar internamente com `OffsetDateTime`, enquanto o MongoDB continua armazenando os dados no formato suportado (`Date`).
-
----
-
-### Observabilidade e Métricas
-
-A aplicação inclui **coleta de métricas** que permitem monitorar o comportamento do sistema de forma eficiente e detalhada.
-Entre as métricas registradas, estão:
-- **Quantidade de requisições**: total de chamadas feitas aos endpoints da aplicação.  
-- **Identificação da requisição via `correlationId`**: permite rastrear cada requisição de forma única.  
-- **Rastreamento de execução**: mede o tempo de execução e o fluxo de processamento de cada operação.  
-
-**Endpoints de métricas**
-
-Na collection do **Insomnia**, as requisições estão configuradas para acessar as métricas:
-
-- Requisições aprovadas:  
-  `http://localhost:8080/actuator/metrics/saque.aprovadas`  
-- Requisições rejeitadas:  
-  `http://localhost:8080/actuator/metrics/saque.rejeitadas`  
-- Tempo de resposta:  
-  `http://localhost:8080/actuator/metrics/saque.tempo.resposta`  
-
-Essas URLs utilizam o **Spring Boot Actuator**, permitindo integração com dashboards de monitoramento, como Grafana ou Prometheus, se desejado.
 
 ---
 

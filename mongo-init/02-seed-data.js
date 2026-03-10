@@ -18,7 +18,7 @@ while (true) {
         try {
             rs.initiate({
                 _id: "rs0",
-                members: [{ _id: 0, host: "mongo:27017" }]
+                members: [{ _id: 0, host: "localhost:27017" }]
             });
         } catch (initError) {
             print("ReplicaSet já iniciado ou aguardando eleição...");
@@ -40,7 +40,9 @@ db.accounts.insertMany([
     { _id: "c107", status: "ENCERRADA", saldo: NumberDecimal("30600.00"), tipoConta: "BASICA", version: 0 },
     { _id: "c108", status: "ATIVA", saldo: NumberDecimal("70000.00"), tipoConta: "GOLD", version: 0 },
     { _id: "c109", status: "ENCERRADA", saldo: NumberDecimal("1500.00"), tipoConta: "BASICA", version: 0 },
-    { _id: "c110", status: "ATIVA", saldo: NumberDecimal("5020.00"), tipoConta: "GOLD", version: 0 }
+    { _id: "c110", status: "ATIVA", saldo: NumberDecimal("5020.00"), tipoConta: "GOLD", version: 0 },
+    { _id: "c111", status: "ATIVA", saldo: NumberDecimal("5020.00"), tipoConta: "GOLD", version: 0 }
+
 ]);
 
 const now = new Date();

@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.dao.OptimisticLockingFailureException;
+import java.util.UUID;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -32,7 +33,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+//@Transactional
 public class SolicitarSaqueService {
 
     private final ContaRepository contaRepository;
@@ -343,7 +344,7 @@ public class SolicitarSaqueService {
         }
 
         return new SaqueResponse(
-                "s987",
+                saque.getId().toHexString(),
                 conta.getIdConta(),
                 saque.getValor(),
                 canal,

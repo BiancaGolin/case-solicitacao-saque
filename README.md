@@ -309,6 +309,115 @@ No entanto, para o escopo deste projeto, a arquitetura em camadas oferece um equ
 
 ---
 
+### Terraform
+
+Este projeto realiza o **deploy de uma aplicação Java Spring Boot com MongoDB na AWS utilizando ECS (Fargate)** e **Terraform** para provisionamento da infraestrutura.
+
+**Pré-requisitos**
+
+Antes de executar o projeto, é necessário ter instalado:
+
+- **AWS CLI** configurado com permissões adequadas
+- **Docker**
+- **Terraform**
+- **Java 21**
+- **Maven** (para desenvolvimento local)
+
+Também é necessário **configurar as credenciais da AWS** antes de executar o Terraform.
+
+
+**Passos para o Deploy**
+
+**1.** Inicializar o Terraform
+
+Inicializa os providers e dependências necessárias.
+
+```bash
+terraform init
+```
+
+**2.** Planejar o Deploy
+
+Mostra os recursos que serão criados na AWS.
+```bash
+terraform plan
+```
+
+**3.** Criar a Infraestrutura
+
+Cria todos os recursos necessários na AWS, incluindo os repositórios ECR.
+```bash
+terraform apply
+```
+**4.** Build e Push das Imagens Docker
+
+Constrói as imagens da aplicação e envia para o Amazon ECR.
+```bash
+./build-and-push.sh
+```
+
+Se já existirem imagens anteriores, é necessário forçar um novo deploy para que o ECS utilize a nova imagem:
+```bash
+aws ecs update-service \
+  --cluster solicitacao-saque-cluster \
+  --service solicitacao-saque-app \
+  --force-new-deployment
+```
+
+Observação:
+O MongoDB utiliza a imagem oficial do Docker Hub, portanto não é necessário criar um repositório no ECR para ele.
+
+**5.** Atualizar os Serviços no ECS
+
+Depois que as imagens forem enviadas para o ECR, atualize os serviços.
+
+**Aplicação**
+```bash
+aws ecs update-service \
+  --cluster solicitacao-saque-cluster \
+  --service solicitacao-saque-app \
+  --force-new-deployment
+```
+
+**MongoDB**
+```bash
+aws ecs update-service \
+  --cluster solicitacao-saque-cluster \
+  --service solicitacao-saque-mongo \
+  --force-new-deployment
+```
+**Arquitetura**
+
+A infraestrutura criada inclui:
+
+- VPC personalizada
+- Subnets públicas e privadas
+- Cluster ECS utilizando Fargate
+- MongoDB rodando como serviço no ECS
+- Aplicação Spring Boot
+- Application Load Balancer (ALB) na porta 80
+- Service Discovery para comunicação entre aplicação e MongoDB
+- Acessar a Aplicação
+
+Após o deploy, obtenha o DNS do Load Balancer através do Terraform:
+```bash
+terraform output alb_dns_name
+```
+
+A aplicação ficará disponível em:
+
+```bash
+http://<alb-dns-name>
+```
+
+**Remover Toda a Infraestrutura**
+
+Para destruir todos os recursos criados:
+```bash
+terraform destroy
+```
+---
+
 ### Melhorias Futuras
 
 Algumas evoluções possíveis para tornar o sistema mais robusto em um ambiente de produção:

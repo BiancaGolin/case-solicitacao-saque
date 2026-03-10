@@ -27,5 +27,17 @@ services:
     depends_on:    #Garante que a aplicação so vai ser executada apenas quando o mongo ja estiver saudavel
       mongo-db:
         condition: service_healthy
+
+  test:
+    build:
+      context: .
+      target: test   # build do stage de teste do Dockerfile
+    container_name: saque-tests
+    depends_on:
+      mongo-db:
+        condition: service_healthy
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongo-db:27017/saque-db
+
 volumes:
   mongo-data:

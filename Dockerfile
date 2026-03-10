@@ -19,7 +19,7 @@ WORKDIR /test
 
 # Copia o pom e instala dependências (cache)
 COPY pom.xml .
-RUN mvn -q -B dependency:go-offline
+RUN mvn -B dependency:go-offline
 
 # Copia o código-fonte
 COPY src ./src

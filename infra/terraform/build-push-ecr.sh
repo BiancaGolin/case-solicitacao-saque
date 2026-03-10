@@ -5,7 +5,6 @@
 # Configura o aws cli
 set -e
 AWS_REGION="us-east-2"
-AWS_PROFILE="sec-ops"
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 APP_REPO_NAME="solicitacao-saque-app"
 MONGO_REPO_NAME="solicitacao-saque-mongo"

@@ -1,18 +1,3 @@
-### Estrutura de Pastas do Projeto
-
-case-solicitacao-saque/
-├── .mvn/                  # wrapper do Maven
-├── mongo-init/            # scripts de inicialização do MongoDB
-├── src/                   # código-fonte da aplicação Java
-├── Dockerfile             # instruções de build de imagem Docker
-├── docker-compose.yml     # define os serviços Docker (app + banco)
-├── mvnw                   # wrapper do Maven para Mac/Linux
-├── mvnw.cmd               # wrapper do Maven para Windows
-├── pom.xml                # configuração Maven e dependências
-└── .gitignore             # arquivos/pastas que não são versionados
-
----
-
 ### Diagrama
 
 ![Diagrama de Sequência do Saque](diagrama.png)
@@ -162,29 +147,32 @@ Entretanto, essa abordagem é mais eficiente do que bloqueios pessimistas em cen
 
 Em sistemas distribuídos, requisições podem ser reenviadas pelo cliente devido a:
 
-- Timeout
-- Falhas de rede
-- Retries automáticos
+- timeout
+- falhas de rede
+- retries automáticos
 
-A solução considera esse cenário e aplica restrições para evitar processamento duplicado.
+A solução considera esse cenário e aplica mecanismos para evitar que uma mesma solicitação seja processada mais de uma vez.
 
-**Fluxo completo**
+O cliente deve enviar o header: `Idempotency-Key`
 
-**1.** Cliente envia requisição `POST /solicitacoes-saque` com `Idempotency-Key`
 
-**2.** Service verifica no banco:
+Esse valor identifica de forma única uma solicitação.
 
-- Se já existe → 409 Conflict
+**Fluxo de idempotência**
 
-- Se não existe → continua
+**1.** Cliente envia requisição `POST /solicitacoes-saque` com o header `Idempotency-Key`
 
-**3.** Executa todas as validações de negócio:
+**2.** O service verifica no banco se já existe um registro com essa chave
 
-- Conta ativa
+   - Se já existir → retorna **409 Conflict**
+   - Se não existir → continua o processamento
 
-- Saldo suficiente
+**3.** Executa as validações de negócio:
 
-- Limites de saque, diário e por canal
+   - conta ativa
+   - saldo suficiente
+   - limite de saque diário
+   - limite de saque por canal
 
 **4.** Cria e salva o saque
 
@@ -192,28 +180,54 @@ A solução considera esse cenário e aplica restrições para evitar processame
 
 **6.** Retorna a resposta ao cliente
 
+A entidade de idempotência possui um **índice único** no banco de dados.
+
+Exemplo simplificado da entidade:
+
+```java
+@Indexed(unique = true)
+private String idempotencyKey;
+```
 ---
 
-### Uso de OffsetDateTime
+### Configuração do MongoDB
+
+A aplicação possui um pacote `config` responsável por configurações específicas de infraestrutura.
+
+**MongoConfig**
+
+A classe `MongoConfig` centraliza as configurações relacionadas ao MongoDB.
+
+Entre as responsabilidades dessa configuração estão:
+
+- inicialização do **replica set** utilizado para suportar transações
+- customização do comportamento do cliente Mongo
+- preparação da aplicação para operações que exigem **consistência transacional**
+
+O uso de replica set é necessário porque **transações no MongoDB só funcionam quando o banco está configurado como replica set**, mesmo em ambiente local.
+
+No ambiente de desenvolvimento essa configuração é feita automaticamente via `docker-compose`.
+
+**Suporte a OffsetDateTime**
 
 A aplicação utiliza `OffsetDateTime` para representar timestamps.
 
-**Motivo**
-
 Esse tipo de dado preserva:
 
-- Data
-- Hora
-- Offset de fuso horário
+- data  
+- hora  
+- offset de fuso horário  
 
-O que evita ambiguidades relacionadas a timezone.
+Isso evita ambiguidades relacionadas a **timezone**, o que é importante em sistemas financeiros ou distribuídos.
 
-O MongoDB não suporta esse tipo nativamente.
+No entanto, o **MongoDB não possui suporte nativo para `OffsetDateTime`**.
 
-Por isso foi necessário implementar conversores customizados para transformar:
+Por esse motivo, foram implementados **conversores customizados** na configuração do Mongo para realizar a transformação automática entre os tipos:
 
-- `OffsetDateTime` → `Date`
-- `Date` → `OffsetDateTime`
+- `OffsetDateTime → Date`
+- `Date → OffsetDateTime`
+
+Dessa forma, a aplicação pode trabalhar internamente com `OffsetDateTime`, enquanto o MongoDB continua armazenando os dados no formato suportado (`Date`).
 
 ---
 

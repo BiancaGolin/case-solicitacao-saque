@@ -30,7 +30,7 @@ cd case-solicitacao-saque
 **2.** Suba os containers
 
 ```console
-docker compose up --build
+docker compose up --build mongo-db app
 ```
 Esse comando irá:
 
@@ -46,7 +46,7 @@ Esse comando irá:
 
 Caso queira rodar somente os testes, é possível executar o serviço específico de testes:
 ```console
-docker compose run --rm tests
+docker compose run --rm test
 ```
 > Esse comando executa apenas o container responsável pelos testes e o remove após a execução.
 ---

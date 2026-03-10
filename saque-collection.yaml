@@ -1,0 +1,486 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: Saque
+meta:
+  id: wrk_2363fb09c6c1411eb8338a1cf8b9cdfb
+  created: 1772852022474
+  modified: 1772852022474
+  description: ""
+collection:
+  - name: Concorrencia
+    meta:
+      id: fld_80aaa23c9d3b4f4a9c7540c3c21c6db8
+      created: 1772988939845
+      modified: 1772988939845
+      sortKey: -1772988939845
+      description: ""
+  - name: Metricas
+    meta:
+      id: fld_b7cd352f09db4494b4e9f010bd556767
+      created: 1772996015017
+      modified: 1772996015017
+      sortKey: -1772996015017
+      description: ""
+    children:
+      - url: http://localhost:8080/actuator/metrics/saque.aprovadas
+        name: Saque aprovado
+        meta:
+          id: req_a4fa92c84a414d75831386c074761950
+          created: 1772995911070
+          modified: 1772996022752
+          isPrivate: false
+          description: ""
+          sortKey: -1772996022728
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/actuator/metrics/saque.rejeitadas
+        name: Saque rejeitado
+        meta:
+          id: req_832d0fb2d880493783eb1830b1f562de
+          created: 1772996002624
+          modified: 1772996069744
+          isPrivate: false
+          description: ""
+          sortKey: -1772996022828
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/actuator/metrics/saque.tempo.resposta
+        name: Tempo resposta
+        meta:
+          id: req_57fcb94aa86a43e1921f3ed098526782
+          created: 1772996009816
+          modified: 1772996079670
+          isPrivate: false
+          description: ""
+          sortKey: -1772996022628
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Saque
+    meta:
+      id: fld_10193fe8fbf54d66930985cdd48f024a
+      created: 1773100725417
+      modified: 1773100725417
+      sortKey: -1773100725417
+      description: ""
+    children:
+      - url: http://localhost:8080/solicitacoes-saque
+        name: Solicitar Saque - Sucesso
+        meta:
+          id: req_3d5fd63765a3408aa5212bf71990a483
+          created: 1772852032503
+          modified: 1773103837764
+          isPrivate: false
+          description: ""
+          sortKey: -1773100733220
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "idConta": "c103",
+              "valor": 500,
+              "canal": "ATM",
+              "idTerminal": "ATM-0091",
+              "dataHoraSolicitacao": "2026-03-09T10:00:00-03:00"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+          - name: Idempotency-Key
+            value: q1w33
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/solicitacoes-saque/69af69c3ca5aeca14c8563b8
+        name: Saque por IDSaque
+        meta:
+          id: req_b5b5c64d492b4b14bf76c65f50049a9e
+          created: 1772912182714
+          modified: 1773103901317
+          isPrivate: false
+          description: ""
+          sortKey: -1773100733045
+        method: GET
+        body:
+          mimeType: application/json
+          text: ""
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+          - name: Idempotency-Key
+            value: "234566765"
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/contas/c103/solicitacoes-saque?dataInicio=2026-03-07&dataFim=2026-03-10
+        name: Consulta Saque IDConta
+        meta:
+          id: req_ee491ffef0a54bbbb0233c14a9f8f898
+          created: 1772917859358
+          modified: 1773103880257
+          isPrivate: false
+          description: ""
+          sortKey: -1773100733082.5
+        method: GET
+        body:
+          mimeType: application/json
+          text: ""
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/solicitacoes-saque
+        name: Solicitar Saque - Conta Inativa
+        meta:
+          id: req_581a2bb0a8bf4f04916aa5b4192451c1
+          created: 1773100518157
+          modified: 1773102237276
+          isPrivate: false
+          description: ""
+          sortKey: -1773100733170
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "idConta": "c107",
+              "valor": 100,
+              "canal": "ATM",
+              "idTerminal": "ATM-0092",
+              "dataHoraSolicitacao": "2026-03-09T11:00:00-03:00"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+          - name: Idempotency-Key
+            value: q1w24
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/solicitacoes-saque
+        name: Solicitar Saque - Saldo Insuficiente
+        meta:
+          id: req_30d1a75463db4a9faa998c6ba1a910dd
+          created: 1773100550625
+          modified: 1773102239418
+          isPrivate: false
+          description: ""
+          sortKey: -1773100733145
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "idConta": "c103",
+              "valor": 8000,
+              "canal": "APP",
+              "idTerminal": "ATM-0093",
+              "dataHoraSolicitacao": "2026-03-09T12:00:00-03:00"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+          - name: Idempotency-Key
+            value: q1w25
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/solicitacoes-saque
+        name: Solicitar Saque - Limite Excedido
+        meta:
+          id: req_598343112fa34a49857dc1556bb30a4c
+          created: 1773100579374
+          modified: 1773102471789
+          isPrivate: false
+          description: ""
+          sortKey: -1773100733132.5
+        method: POST
+        body:
+          mimeType: application/json
+          text: |
+            {
+              "idConta": "c108",
+              "valor": 12000,
+              "canal": "APP",
+              "idTerminal": "ATM-0094",
+              "dataHoraSolicitacao": "2026-03-09T13:00:00-03:00"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+          - name: Idempotency-Key
+            value: q1w26
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/solicitacoes-saque
+        name: Solicitar Saque - Limite Diário
+        meta:
+          id: req_aec864b5404b4dd6900442d1ecd338bb
+          created: 1773100598723
+          modified: 1773102673851
+          isPrivate: false
+          description: ""
+          sortKey: -1773100733126.25
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "idConta": "c108",
+              "valor": 9000,
+              "canal": "APP",
+              "idTerminal": "ATM-0095",
+              "dataHoraSolicitacao": "2026-03-09T14:00:00-03:00"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+          - name: Idempotency-Key
+            value: q1w27
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/solicitacoes-saque
+        name: Solicitar Saque - Limite ATM
+        meta:
+          id: req_c161f8f76a914767a288ebb6659d7be4
+          created: 1773100619051
+          modified: 1773102252423
+          isPrivate: false
+          description: ""
+          sortKey: -1773100733123.125
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "idConta": "c106",
+              "valor": 1001,
+              "canal": "ATM",
+              "idTerminal": "ATM-0096",
+              "dataHoraSolicitacao": "2026-03-09T15:00:00-03:00"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+          - name: Idempotency-Key
+            value: q1w28
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/solicitacoes-saque
+        name: Solicitar Saque - Idempotencia
+        meta:
+          id: req_43d3373ddbc44963975ad7aedae2b891
+          created: 1773100642340
+          modified: 1773102260594
+          isPrivate: false
+          description: ""
+          sortKey: -1773100733120
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "idConta": "c106",
+              "valor": 500,
+              "canal": "ATM",
+              "idTerminal": "ATM-0097",
+              "dataHoraSolicitacao": "2026-03-09T16:00:00-03:00"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+          - name: Idempotency-Key
+            value: q1w23
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/solicitacoes-saque
+        name: Solicitar Saque - Limite Diário_2
+        meta:
+          id: req_b5ebe9eceee040fdaff92a57226fff04
+          created: 1773102652130
+          modified: 1773102660427
+          isPrivate: false
+          description: ""
+          sortKey: -1773100733124.6875
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "idConta": "c108",
+              "valor": 7000,
+              "canal": "APP",
+              "idTerminal": "ATM-0095",
+              "dataHoraSolicitacao": "2026-03-09T14:00:00-03:00"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+          - name: Idempotency-Key
+            value: q1w30
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_5af22881b560fd934d9fa5e3f6ae8805c06a7486
+    created: 1772852022478
+    modified: 1772852022478
+environments:
+  name: Base Environment
+  meta:
+    id: env_5af22881b560fd934d9fa5e3f6ae8805c06a7486
+    created: 1772852022476
+    modified: 1772852022476
+    isPrivate: false

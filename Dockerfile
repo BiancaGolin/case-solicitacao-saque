@@ -29,7 +29,7 @@ CMD ["mvn", "clean", "test"]
 
 # ================= Runtime Stage =================
 # imagem base da amazon para java 21, mas sem recursos para o build, apenas para execução
-FROM amazoncorretto:21-alpine-jre
+FROM amazoncorretto:21-alpine
 
 WORKDIR /app
 

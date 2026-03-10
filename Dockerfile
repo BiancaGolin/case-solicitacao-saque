@@ -12,7 +12,22 @@ RUN mvn -q -e -B dependency:go-offline
 COPY src ./src
 RUN mvn -q -DskipTests package
 
-# -------- Runtime stage --------
+# ================= Test Stage =================
+FROM maven:3.9.9-amazoncorretto-21-alpine AS test
+
+WORKDIR /test
+
+# Copia o pom e instala dependências (cache)
+COPY pom.xml .
+RUN mvn -q -B dependency:go-offline
+
+# Copia o código-fonte
+COPY src ./src
+
+# Comando padrão do stage de teste: executa todos os testes
+CMD ["mvn", "clean", "test"]
+
+# ================= Runtime Stage =================
 # imagem base da amazon para java 21, mas sem recursos para o build, apenas para execução
 FROM amazoncorretto:21-alpine-jre
 
@@ -21,10 +36,12 @@ WORKDIR /app
 # cria e define um usuario não root na aplicação, evite problemas/alertas de segurança
 RUN addgroup -S spring && adduser -S spring -G spring
 
+# Copia o JAR do stage de build
 COPY --from=build /build/target/*.jar app.jar
 
 USER spring:spring
 
 EXPOSE 8080
 
+# Entrada padrão para rodar a aplicação
 ENTRYPOINT ["java","-jar","/app/app.jar"]

@@ -17,6 +17,7 @@ case-solicitacao-saque/
 
 ![Diagrama de Sequência do Saque](diagrama.png)
 
+Para explorar ou editar o diagrama de sequência, acesse o arquivo no Google Drive: [Clique aqui](https://drive.google.com/file/d/1XBUUFobv2gdpA8UJ8r-g5IlaMvI7oMf5/view?usp=drive_link)
 
 ---
 
